@@ -117,9 +117,9 @@ let buildingDataRaw = [
 		d: {
 			index: 2,
 			x: 215,
-			y: 130,
+			y: 140,
 			width: 30,
-			height: 80,
+			height: 60,
 			rooms: [
 				["104"],
 				["204"],
@@ -150,7 +150,7 @@ let buildingDataRaw = [
 			x: 215,
 			y: 230,
 			width: 30,
-			height: 80,
+			height: 60,
 			rooms: [
 				["104"],
 				["204"],

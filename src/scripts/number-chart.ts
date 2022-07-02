@@ -1,8 +1,37 @@
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import {
+	DatasetComponent,
+	DatasetComponentOption,
+	GridComponent,
+	GridComponentOption,
+	TitleComponent,
+	TitleComponentOption,
+	TransformComponent,
+	VisualMapComponent,
+	VisualMapComponentOption,
+} from 'echarts/components';
+import { BarChart, BarSeriesOption } from 'echarts/charts';
+import { CanvasRenderer } from 'echarts/renderers';
 
-type EChartsOption = echarts.EChartsOption;
-let chartDom = document.getElementById('number-chart')!;
-let numberChart = echarts.init(chartDom);
+echarts.use([
+	DatasetComponent,
+	GridComponent,
+	TitleComponent,
+	TransformComponent,
+	VisualMapComponent,
+	BarChart,
+	CanvasRenderer
+]);
+
+type EChartsOption = echarts.ComposeOption<
+	| DatasetComponentOption
+	| GridComponentOption
+	| TitleComponentOption
+	| VisualMapComponentOption
+	| BarSeriesOption
+>;
+
+let numberChart = echarts.init(document.getElementById('number-chart')!);
 let option: EChartsOption;
 
 option = {
@@ -26,6 +55,13 @@ option = {
 		}
 	},
 	xAxis: { position: 'top', },
+	title: {
+		textStyle: {
+			color: '#7898e1',
+			fontSize: 16,
+		},
+		top: 10,
+	},
 	visualMap: {
 		show: false,
 		//orient: 'horizontal',
@@ -46,6 +82,13 @@ option = {
 		type: 'bar',
 		encode: { x: 'number', y: 'name' },
 		datasetIndex: 1,
+		label: {
+			show: true,
+			color: '#b03a5b',
+			fontSize: 10,
+			position: 'right',
+			verticalAlign: 'middle',
+		},
 	},
 	animationDuration: 400
 };

@@ -1,6 +1,29 @@
 import _ from 'underscore';
-import * as echarts from 'echarts';
 import buildingDataRaw from './building-data';
+import badgeUrl from '@/assets/badge.png'
+
+import * as echarts from 'echarts/core';
+import {
+  GraphicComponent,
+  GraphicComponentOption,
+  GridComponent,
+  GridComponentOption,
+} from 'echarts/components';
+import { CustomChart, CustomSeriesOption } from 'echarts/charts';
+import { CanvasRenderer } from 'echarts/renderers';
+
+echarts.use([
+  GridComponent,
+  GraphicComponent,
+  CustomChart,
+  CanvasRenderer,
+]);
+
+type EChartsOption = echarts.ComposeOption<
+  | GridComponentOption
+  | CustomSeriesOption
+  | GraphicComponentOption
+>;
 
 let buildingData = _.map(buildingDataRaw, p =>
   p.d.rooms.map((t, i) =>
@@ -10,8 +33,8 @@ let buildingData = _.map(buildingDataRaw, p =>
       p.d.width / t.length, // 2: width
       p.d.height / p.d.rooms.length, // 3: height
       p.d.index, // 4: index
-      p.p + u, // 5: num
-      null, // 6: ks
+      p.p + u, // 5: classroom-num
+      false, // 6: ks
       p.p + u, // 7: label
     ])
   )
@@ -19,9 +42,8 @@ let buildingData = _.map(buildingDataRaw, p =>
 
 console.log(buildingData);
 
-let chartDom2 = document.getElementById('classroom-chart')!;
-let classroomChart = echarts.init(chartDom2);
-let option2: echarts.EChartsOption;
+let classroomChart = echarts.init(document.getElementById('classroom-chart')!);
+let option2: EChartsOption;
 
 let colors = [
   '#63b2ee',
@@ -35,6 +57,13 @@ let colors = [
   //'#eddd86',
   '#9987ce',
 ];
+
+declare type RectLike = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 option2 = {
   xAxis: { show: false, scale: true, max: 250 },
@@ -53,32 +82,22 @@ option2 = {
       lineHeight: 17,
     },
     renderItem: function (params, api) {
-      // 要考虑一下每个item存哪些数据
-      // 一个教室对应一个矩形框 4个坐标值  加一个名字
-      //console.log(params, api)
-      //console.log(params.coordSys);
       let startPoint = api.coord([Number(api.value(0)), Number(api.value(1))]);
       let endPoint = api.coord([Number(api.value(0)) + Number(api.value(2)), Number(api.value(1)) + Number(api.value(3))]);
-      // console.log(startPoint, endPoint);
+
       var rectShape = echarts.graphic.clipRectByRect({
         x: startPoint[0],
         y: startPoint[1],
         width: endPoint[0] - startPoint[0],
         height: startPoint[1] - endPoint[1],
-      }, params.coordSys);
-      // var rectShape = echarts.graphic.clipRectByRect({
-      //   x: Number(api.value(0)),
-      //   y: Number(api.value(1)),
-      //   width: Number(api.value(2)),
-      //   height: Number(api.value(3)),
-      // }, params.coordSys);
+      }, params.coordSys as any as RectLike);
 
       return rectShape && {
         type: 'rect',
         shape: rectShape,
         style: api.style({
           fill: colors[Number(api.value(4))],
-          opacity: api.value(6) ? 1 : 0.5,
+          opacity: api.value(6) ? 0.75 : 0.5,
           stroke: "#777",
           strokeOpacity: 0.5,
         }),
@@ -91,7 +110,100 @@ option2 = {
       label: [7]
     },
   }],
-  animationDuration: 400,
+  graphic: [
+    {
+      type: "text",
+      z: 100,
+      left: 180,
+      top: 370,
+      style: {
+        fill: '#efa666',
+        text: '教一',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: 100,
+      left: 180,
+      top: 160,
+      style: {
+        fill: '#efa666',
+        text: '教三',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: 100,
+      right: 210,
+      top: 90,
+      style: {
+        fill: '#efa666',
+        text: '教八',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: 100,
+      right: 210,
+      top: 300,
+      style: {
+        fill: '#efa666',
+        text: '教六',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: 100,
+      right: 210,
+      top: 510,
+      style: {
+        fill: '#efa666',
+        text: '教四',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: 100,
+      right: 210,
+      top: 720,
+      style: {
+        fill: '#efa666',
+        text: '教二',
+        font: 'bold 16px sans-serif'
+      }
+    },
+    {
+      type: "text",
+      z: -100,
+      left: 250,
+      bottom: 50,
+      style: {
+        fill: '#777',
+        text: '  东 南 大 学 \n考试周可视化',
+        font: 'bold 80px sans-serif',
+        opacity: 0.1,
+        lineHeight: 100,
+      }
+    },
+    {
+      type: 'image',
+      left: 415,
+      bottom: 260,
+      z: -100,
+      bounding: 'raw',
+      style: {
+        image: badgeUrl,
+        width: 160,
+        height: 160,
+        opacity: 0.1,
+      }
+    }
+  ]
 };
 
 option2 && classroomChart.setOption(option2);
